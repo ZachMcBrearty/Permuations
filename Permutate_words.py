@@ -73,7 +73,7 @@ no_of_permuations: 100: the limit to permute
 returns: -1 if no route could be found
 returns: string of the word route, not including the start"""
     if no_of_permuations == 0:
-        return -1
+        return None # Limit reached
     lst = permute(word, word_dict)
     lst.sort(key=lambda x: compareLongOrd(end_word,x))
     for word_ in lst:
@@ -84,12 +84,10 @@ returns: string of the word route, not including the start"""
         else:
             r = permutations(word_, end_word, word_dict, visited+[word_], no_of_permuations-1)
             if r is None:
-                return None # TODO: think about this
-            elif r == -1:
                 continue
             else:
                 return word_+ " " + r
-    return -1 # No words found
+    return None # No words found
 
 def permute(word, word_dict):
     """word: a word to change
