@@ -1,4 +1,4 @@
-# Permuations
+# Permutations 
 A solution to the Word Ladder challenge by Lewis Caroll.
 
 "Convert the word 'alice' into 'genes' in 13 steps or less,
