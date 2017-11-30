@@ -18,7 +18,9 @@
 
 
 
-import os, json
+import json # used to load json dictionaries
+
+import tkinter as tk # used for the GUI mode
 
 # .json loading, "words_dictionary.json" and "words.txt" supplied by
 # https://github.com/dwyl/english-words
@@ -100,11 +102,41 @@ returns: list of words"""
             pot_word = word[:letter] + alpha + word[letter+1:]
             if pot_word in word_dict and pot_word != word:
                 potential_words.append(pot_word)
-    return potential_words    
+    return potential_words
 
-##if __name__=="__main__":
-##    print("working")
-##    wd = filter_words()
-##    print(permutations("alice", "genes", wd, [], 14))
-    
+### GUI ###
+
+class permuateGui(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        self.createWidgets()
+        
+        self.wordLabel = tk.Label(text="")
+        self.wordLabel.pack()
+
+    def createWidgets(self):
+        tk.Label(text="Enter a word:").pack()
+        self.word = tk.Entry()
+        self.word.pack()
+        self.start = tk.Button(text="Start?",command=self.update)
+        self.start.pack()
+
+
+    def update(self):
+        self.wordLabel = tk.Label(text=self.word.get())
+        self.wordLabel.pack_forget()
+        self.wordLabel.pack()
+
+
+
+
+
+
+
+
+
+
+
+
     
