@@ -24,35 +24,35 @@ import tkinter as tk # used for the GUI mode
 
 # .json loading, "words_dictionary.json" and "words.txt" supplied by
 # https://github.com/dwyl/english-words
-def load_words(dictionary="words.txt"):
+def loadWords(dictionary="words.txt"):
     """loads words from a .json or .txt file
 dictionary: "words.txt": the file the words are loading from
 returns: a dict if .json
 returns: a list if .txt"""
     try:
         if dictionary.endswith(".txt"):
-            with open(dictionary,"r") as english_dictionary:
-                valid_words = [line.strip().lower() for line in english_dictionary]
-                return valid_words
+            with open(dictionary,"r") as englishDictionary:
+                validWords = [line.strip().lower() for line in englishDictionary]
+                return validWords
         elif dictionary.endswith(".json"):
-            with open(dictionary,"r") as english_dictionary:
-                valid_words = json.load(english_dictionary)
-                return valid_words
+            with open(dictionary,"r") as englishDictionary:
+                validWords = json.load(englishDictionary)
+                return validWords
         else:
             return "Unknown file extension, use .txt or .json: "+dictionary
     except Exception as e:
         return str(e)
 
-def filter_words(length=5, dictionary="words.txt"):
+def filterWords(length=5, dictionary="words.txt"):
     """length: 5: length of the word to return
 dictionary: "words.txt": the file the words are loading from, see load_words()
 returns: a dict"""
-    words = load_words(dictionary)
-    final_words = {}
+    words = loadWords(dictionary)
+    finalWords = {}
     for word in words:
         if len(word) == length:
-            final_words[word] = 1
-    return final_words
+            finalWords[word] = 1
+    return finalWords
 
 def longOrd(string):
     """string: the string to be converted with ord()
@@ -66,7 +66,7 @@ guess: the string compared to the guess
 returns: int"""
     return sum([abs(x-y) for x, y in zip(longOrd(target), longOrd(guess))])
         
-def permutations(word, end_word, word_dict, visited=[], no_of_permuations=100):
+def permutations(word, endWord, wordDict, visited=[], noOfPermuations=100):
     """word: the starting word
 end_word: the target or final word
 word_dict: a dict of words that can be used, usually from filter_words()
@@ -74,35 +74,37 @@ visited: []: internal list used to track words, prevents loops
 no_of_permuations: 100: the limit to permute
 returns: -1 if no route could be found
 returns: string of the word route, not including the start"""
-    if no_of_permuations == 0:
+    if len(word) != len(endWord):
+        return None
+    if noOfPermuations == 0:
         return None # Limit reached
-    lst = permute(word, word_dict)
-    lst.sort(key=lambda x: compareLongOrd(end_word,x))
+    lst = permute(word, wordDict)
+    lst.sort(key=lambda x: compareLongOrd(endWord,x))
     for word_ in lst:
-        if word_ == end_word:
-            return end_word
+        if word_ == endWord:
+            return endWord
         elif word_ in visited:
             continue
         else:
-            r = permutations(word_, end_word, word_dict, visited+[word_], no_of_permuations-1)
+            r = permutations(word_, endWord, wordDict, visited+[word_], noOfPermuations-1)
             if r is None:
                 continue
             else:
                 return word_+ " " + r
     return None # No words found
 
-def permute(word, word_dict):
+def permute(word, wordDict):
     """word: a word to change
 word_dict: a dict of words of the same length as the word, see filter_words()
 returns: list of words"""
     alphabet = "abcdefghijklmnopqrstuvwxyz"
-    potential_words = []
+    potentialWords = []
     for letter in range(len(word)):
         for alpha in alphabet:
-            pot_word = word[:letter] + alpha + word[letter+1:]
-            if pot_word in word_dict and pot_word != word:
-                potential_words.append(pot_word)
-    return potential_words
+            potWord = word[:letter] + alpha + word[letter+1:]
+            if potWord in wordDict and potWord != word:
+                potentialWords.append(potWord)
+    return potentialWords
 
 ### GUI ###
 
@@ -112,23 +114,43 @@ class permuateGui(tk.Frame):
         self.pack()
         self.createWidgets()
         
-        self.wordLabel = tk.Label(text="")
-        self.wordLabel.pack()
-
     def createWidgets(self):
-        tk.Label(text="Enter a word:").pack()
-        self.word = tk.Entry()
-        self.word.pack()
+        startFrame = tk.Frame(self)
+        tk.Label(master=startFrame, text="Enter the starting word:").pack()
+        self.startWord = tk.Entry(master=startFrame)
+        self.startWord.pack()
+        startFrame.pack(side="left")
+
+        endFrame = tk.Frame(self)
+        tk.Label(endFrame, text="Enter the ending word").pack()
+        self.endWord = tk.Entry(endFrame)
+        self.endWord.pack()
+        endFrame.pack(side="right")
+
         self.start = tk.Button(text="Start?",command=self.update)
         self.start.pack()
-
-
-    def update(self):
-        self.wordLabel = tk.Label(text=self.word.get())
-        self.wordLabel.pack_forget()
+        self.wordLabel = tk.Label(text="")
         self.wordLabel.pack()
-
-
+        
+        self.permutedWordLabels = [tk.Label(text="") for _ in range(15)]
+        for label in self.permutedWordLabels:
+            label.pack()
+            
+    def update(self):
+        for label in self.permutedWordLabels:
+            label["text"] = ""
+        
+        startWord = self.startWord.get()
+        endWord = self.endWord.get()
+        if len(startWord) != len(endWord):
+            self.start["text"] = "Words must be the same length"
+        else:
+            self.wordLabel["text"] = startWord
+            wordList = permutations(startWord, endWord, filterWords(len(startWord)), noOfPermuations=15)
+            wordList = wordList.split(" ")
+            for x in range(0, len(wordList)):
+                self.permutedWordLabels[x]["text"] = wordList[x]
+        
 
 
 
