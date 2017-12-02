@@ -116,49 +116,47 @@ class permuateGui(tk.Frame):
         
     def createWidgets(self):
         startFrame = tk.Frame(self)
-        tk.Label(master=startFrame, text="Enter the starting word:").pack()
-        self.startWord = tk.Entry(master=startFrame)
-        self.startWord.pack()
-        startFrame.pack(side="left")
+        tk.Label(startFrame, text="Enter the starting word:").pack(side="left")
+        self.startWord = tk.Entry(startFrame)
+        self.startWord.pack(side="right")
+        startFrame.pack(side="top")
 
         endFrame = tk.Frame(self)
-        tk.Label(endFrame, text="Enter the ending word").pack()
+        tk.Label(endFrame, text="Enter the ending word: ").pack(side="left")
         self.endWord = tk.Entry(endFrame)
-        self.endWord.pack()
-        endFrame.pack(side="right")
+        self.endWord.pack(side="right")
+        endFrame.pack(side="top")
 
         self.start = tk.Button(text="Start?",command=self.update)
         self.start.pack()
         self.wordLabel = tk.Label(text="")
         self.wordLabel.pack()
-        
+
+        # limit of 15 depth for permutations,
+        # considering having an input field to change this
         self.permutedWordLabels = [tk.Label(text="") for _ in range(15)]
         for label in self.permutedWordLabels:
             label.pack()
-            
+
     def update(self):
         for label in self.permutedWordLabels:
             label["text"] = ""
         
-        startWord = self.startWord.get()
-        endWord = self.endWord.get()
+        startWord = self.startWord.get().lower()
+        endWord = self.endWord.get().lower()
         if len(startWord) != len(endWord):
             self.start["text"] = "Words must be the same length"
         else:
             self.wordLabel["text"] = startWord
             wordList = permutations(startWord, endWord, filterWords(len(startWord)), noOfPermuations=15)
-            wordList = wordList.split(" ")
-            for x in range(0, len(wordList)):
-                self.permutedWordLabels[x]["text"] = wordList[x]
-        
+            if wordList is None:
+                self.wordLabel["text"] = "Unable to find path"
+            else:
+                wordList = wordList.split(" ")
+                for x in range(0, len(wordList)):
+                    self.permutedWordLabels[x]["text"] = wordList[x]
 
-
-
-
-
-
-
-
-
-
-    
+if __name__=="__main__":
+    root = tk.Tk()
+    root.geometry(newGeometry="300x500+100+100")
+    a = permuateGui(root)
